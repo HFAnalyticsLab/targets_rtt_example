@@ -52,11 +52,7 @@ tar_source()
 list(
   tar_target(
     name = data,
-    command = tibble(x = rnorm(100), y = rnorm(100))
+    command = links_out_df(5) # months of current year with data
     # format = "qs" # Efficient storage for general data objects.
-  ),
-  tar_target(
-    name = model,
-    command = coefficients(lm(y ~ x, data = data))
   )
 )

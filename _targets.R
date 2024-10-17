@@ -9,8 +9,8 @@ library(targets)
 
 # Set target options:
 tar_option_set(
-  packages = c("tibble", "rvest", "stringr", "tidyr", "dplyr", "downloader") # Packages that your targets need for their tasks.
-  # format = "qs", # Optionally set the default storage format. qs is fast.
+  packages = c('tibble', 'rvest', 'stringr', 'tidyr', 'dplyr', 'downloader', 'data.table') # Packages that your targets need for their tasks.
+  # format = 'qs', # Optionally set the default storage format. qs is fast.
   #
   # Pipelines that take a long time to run may benefit from
   # optional distributed computing. To use this capability
@@ -36,9 +36,9 @@ tar_option_set(
   #     seconds_idle = 120,
   #     # Many clusters install R as an environment module, and you can load it
   #     # with the script_lines argument. To select a specific verison of R,
-  #     # you may need to include a version string, e.g. "module load R/4.3.2".
+  #     # you may need to include a version string, e.g. 'module load R/4.3.2'.
   #     # Check with your system administrator if you are unsure.
-  #     script_lines = "module load R"
+  #     script_lines = 'module load R'
   #   )
   #
   # Set other options as needed.
@@ -46,13 +46,13 @@ tar_option_set(
 
 # Run the R scripts in the R/ folder with your custom functions:
 tar_source()
-# tar_source("other_functions.R") # Source other scripts as needed.
+# tar_source('other_functions.R') # Source other scripts as needed.
 
 # Replace the target list below with your own:
 list(
   tar_target(
     name = data,
     command = links_out_df(5) # months of current year with data
-    # format = "qs" # Efficient storage for general data objects.
+    # format = 'qs' # Efficient storage for general data objects.
   )
 )

@@ -48,5 +48,6 @@ po/*~
 # RStudio Connect folder
 rsconnect/
 
-# targets folder
+# targets & data folders
 _targets/
+RTT_temp_data/

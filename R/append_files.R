@@ -7,29 +7,34 @@ append_IS <- function(data){
     
     #Open all provider files for one month and append
     incomplete <- read_excel(paste0(init,
-                                    "-providers-incomplete.",
+                                    '-providers-incomplete.',
                                     file_ext(data$providers.link.incomp[s])),
-                             sheet = "IS Provider",skip=13)
+                             sheet = 'IS Provider',
+                             skip = 13)
     
     incompleteDTA <- read_excel(paste0(init,
-                                       "-providers-incomplete.",
+                                       '-providers-incomplete.',
                                        file_ext(data$providers.link.incomp[s])),
-                                sheet = "IS Provider with DTA",skip=13)
+                                sheet = 'IS Provider with DTA',
+                                skip = 13)
     
     new_provider <- read_excel(paste0(init,
-                                      "-newproviders.",
+                                      '-newproviders.',
                                       file_ext(data$providers.link.new[s])),
-                               sheet = "IS Provider",skip=13)
+                               sheet = 'IS Provider',
+                               skip = 13)
     
     adm_provider <- read_excel(paste0(init,
-                                      "-providers-admitted.",
+                                      '-providers-admitted.',
                                       file_ext(data$providers.link.adm[s])),
-                               sheet = "IS Provider",skip=13)
+                               sheet = 'IS Provider',
+                               skip = 13)
     
     nonadm_provider <- read_excel(paste0(init,
-                                         "-providers-nonadmitted.",
+                                         '-providers-nonadmitted.',
                                          file_ext(data$providers.link.nonadm[s])),
-                                  sheet = "IS Provider",skip=13)
+                                  sheet = 'IS Provider',
+                                  skip = 13)
     
     #IS providers for that month
     
@@ -54,8 +59,7 @@ append_IS <- function(data){
   IS_providers_allmonths <- storage[!duplicated(storage), ]
   
   #Save
-  fwrite(IS_providers_allmonths, file = paste0(R_workbench,"/RTT_temp_data/",
-                                               "/IS_providers_allmonths.csv"), sep = ",")
+  fwrite(IS_providers_allmonths, file = 'RTT_temp_data/IS_providers_allmonths.csv')
 
 }
 
@@ -68,29 +72,34 @@ append_geo <- function(data){
     
     #Open all provider files for one month and append
     incomplete <- read_excel(paste0(init,
-                                    "-providers-incomplete.",
+                                    '-providers-incomplete.',
                                     file_ext(data$providers.link.incomp[s])),
-                             sheet = "Provider",skip=13)
+                             sheet = 'Provider',
+                             skip = 13)
     
     incompleteDTA <- read_excel(paste0(init,
-                                       "-providers-incomplete.",
+                                       '-providers-incomplete.',
                                        file_ext(data$providers.link.incomp[s])),
-                                sheet = "Provider with DTA",skip=13)
+                                sheet = 'Provider with DTA',
+                                skip = 13)
     
     new_provider <- read_excel(paste0(init,
-                                      "-newproviders.",
+                                      '-newproviders.',
                                       file_ext(data$providers.link.new[s])),
-                               sheet = "Provider",skip=13)
+                               sheet = 'Provider',
+                               skip = 13)
     
     adm_provider <- read_excel(paste0(init,
-                                      "-providers-admitted.",
+                                      '-providers-admitted.',
                                       file_ext(data$providers.link.adm[s])),
-                               sheet = "Provider",skip=13)
+                               sheet = 'Provider',
+                               skip = 13)
     
     nonadm_provider <- read_excel(paste0(init,
-                                         "-providers-nonadmitted.",
+                                         '-providers-nonadmitted.',
                                          file_ext(data$providers.link.nonadm[s])),
-                                  sheet = "Provider",skip=13)
+                                  sheet = 'Provider',
+                                  skip = 13)
     
     #IS providers for that month
     
@@ -115,7 +124,6 @@ append_geo <- function(data){
   providers_allmonths <- storage[!duplicated(storage), ]
 
   #Save
-  fwrite(providers_allmonths, file = paste0(R_workbench,"/RTT_temp_data/",
-                                            "/providers_allmonths.csv"), sep = ",")
+  fwrite(providers_allmonths, file = 'RTT_temp_data/providers_allmonths.csv')
 
 }

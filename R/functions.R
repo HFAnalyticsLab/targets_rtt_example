@@ -14,36 +14,26 @@ year_lkup <- function(y, l=12){
 }
 
 #All together
-
-inputs <- rbind(year_lkup(24,5),
-                year_lkup(23),
-                year_lkup(22),
-                year_lkup(21),
-                year_lkup(20),
-                year_lkup(19),
-                year_lkup(18))
+file_dates_df <- function(m, y = 24, yb = 6){
+  
+  a <- lapply(FUN = year_lkup, c((y-1):(y-yb))) |>
+        rbindlist()
+  
+  return(rbind(year_lkup(y, m), a))
+  
+}
 
 #Function that reports links to 3 files for each month
 
 return_links_rtt <- function(month,series){
   
-  #Find landing page for the appropriate financial year
-  if (series=="2425"){
-    read.first.page <- read_html("https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/rtt-data-2024-25/")
-  } else if (series=="2324"){
-    read.first.page <- read_html("https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/rtt-data-2023-24/")
-  } else if (series=="2223"){
-    read.first.page <- read_html("https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/rtt-data-2022-23/")
-  } else if (series=="2122"){
-    read.first.page <- read_html("https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/rtt-data-2021-22/")
-  } else if (series=="2021"){
-    read.first.page <- read_html("https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/rtt-data-2020-21/")
-  } else if (series=="1920") {
-    read.first.page <- read_html("https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/rtt-data-2019-20/")
-  } else if (series=="1819") {
-    read.first.page <- read_html("https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/rtt-data-2018-19/")
-  }
-  
+  read.first.page <- read_html(
+                     paste0('https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/rtt-data-20',
+                            substr(series,1,2),
+                            '-',
+                            substr(series,3,4),
+                            '/'))
+                        
   #This expression will extract all links associated with any text that contains the name of the month (e.g. "Jan")
   #See xpath cheat sheet here 'https://cheatography.com/alexsiminiuc/cheat-sheets/xpath/'
   #Or tutorial here 'https://levelup.gitconnected.com/master-the-art-of-writing-xpath-for-web-scraping-c14e2f7ee130'
@@ -83,65 +73,64 @@ return_links_rtt <- function(month,series){
 #Example
 #return_links_rtt("Jul","2122")
 
-#Apply for all months to get all links, and store there is 'links.out.df'
+#Apply for all months to get all links, and store there is 'links_out_df'
 
-links.out <- mapply(return_links_rtt,
-                    month=inputs$month,
-                    series = inputs$series)
-links.out.df <- as.data.frame(t(links.out)) %>%
-  filter(.,!is.na(full.csv.link)) #Filter out months that haven't been uploaded yet or don't exist
+links_out_df <- mapply(return_links_rtt,
+                       month = file_dates_df(m=5)$month,
+                       series = file_dates_df(m=5)$series) |>
+                t() |>              
+                as.data.frame() |>
+                unnest(cols = c(month, series, full.csv.link, providers.link.incomp, providers.link.new,
+                                providers.link.adm, providers.link.nonadm)) |>
+                filter(!is.na(full.csv.link)) #Filter out months that haven't been uploaded yet or don't exist
 
-
-## check any missing values if both TRUE we are good
-sum(is.na(links.out.df)) == 0
-nrow(links.out.df) == nrow(inputs)
 
 ###########################################################
 ################### Download all files ####################
 ###########################################################
-for (k in 1:nrow(links.out.df)){
+for (k in 1:nrow(links_out_df)){
   
     #Download Full CSV in workbench
-    download(as.character(links.out.df$full.csv.link[k]),
-             dest=paste0("RTT_temp_data/temp files/",links.out.df$month[k],".zip"), mode="wb")
+    download(as.character(links_out_df$full.csv.link[k]),
+             dest=paste0("RTT_temp_data/temp files/",links_out_df$month[k],".zip"), mode="wb")
     #Unzip Full CSV in workbench
-    unzip(paste0("RTT_temp_data/temp files/",links.out.df$month[k],".zip"),
-          exdir = paste0("RTT_temp_data/temp files/",links.out.df$month[k]))
+    unzip(paste0("RTT_temp_data/temp files/",links_out_df$month[k],".zip"),
+          exdir = paste0("RTT_temp_data/temp files/",links_out_df$month[k]))
     #Delete zip file
-    file.remove(paste0("RTT_temp_data/temp files/",links.out.df$month[k],".zip"))
+    file.remove(paste0("RTT_temp_data/temp files/",links_out_df$month[k],".zip"))
     
     #Download New Providers
-    download(as.character(links.out.df$providers.link.new[k]),
+    download(as.character(links_out_df$providers.link.new[k]),
              dest=paste0("RTT_temp_data/temp files/",
-                         paste(links.out.df$month[k]),"/",
-                         links.out.df$month[k],"-newproviders.", 
-                         tools::file_ext(links.out.df$providers.link.new[k])),
+                         paste(links_out_df$month[k]),"/",
+                         links_out_df$month[k],"-newproviders.", 
+                         tools::file_ext(links_out_df$providers.link.new[k])),
              mode="wb")
     
     #Download Admitted Providers
-    download(as.character(links.out.df$providers.link.adm[k]),
+    download(as.character(links_out_df$providers.link.adm[k]),
              dest=paste0("RTT_temp_data/temp files/",
-                         paste(links.out.df$month[k]),"/",
-                         links.out.df$month[k],"-providers-admitted.",
-                         tools::file_ext(links.out.df$providers.link.adm[k])),
+                         paste(links_out_df$month[k]),"/",
+                         links_out_df$month[k],"-providers-admitted.",
+                         tools::file_ext(links_out_df$providers.link.adm[k])),
              mode="wb")
     
     #Download Non-Admitted Providers
-    download(as.character(links.out.df$providers.link.nonadm[k]),
+    download(as.character(links_out_df$providers.link.nonadm[k]),
              dest=paste0("RTT_temp_data/temp files/",
-                         paste(links.out.df$month[k]),"/",
-                         links.out.df$month[k],"-providers-nonadmitted.",
-                         tools::file_ext(links.out.df$providers.link.nonadm[k])), 
+                         paste(links_out_df$month[k]),"/",
+                         links_out_df$month[k],"-providers-nonadmitted.",
+                         tools::file_ext(links_out_df$providers.link.nonadm[k])), 
              mode="wb")
     
     ### Incomplete providers
     
     #Download Incomplete Providers
-    download(as.character(links.out.df$providers.link.incomp[k]),
+    download(as.character(links_out_df$providers.link.incomp[k]),
              dest=paste0("RTT_temp_data/temp files/",
-                         paste(links.out.df$month[k]),"/",
-                         links.out.df$month[k],"-providers-incomplete.",
-                         tools::file_ext(links.out.df$providers.link.incomp[k])),
+                         paste(links_out_df$month[k]),"/",
+                         links_out_df$month[k],"-providers-incomplete.",
+                         tools::file_ext(links_out_df$providers.link.incomp[k])),
              mode="wb") 
 }
 
@@ -149,27 +138,27 @@ for (k in 1:nrow(links.out.df)){
 ################### Append all IS provider files into one #################
 ###########################################################################
 
-for (s in 1:nrow(links.out.df)){
+for (s in 1:nrow(links_out_df)){
   
   #Open all provider files for one month and append
-  incomplete <- read_excel(paste0(links.out.df$month[s],"-providers-incomplete.",
-                                  tools::file_ext(links.out.df$providers.link.incomp[s])),
+  incomplete <- read_excel(paste0(links_out_df$month[s],"-providers-incomplete.",
+                                  tools::file_ext(links_out_df$providers.link.incomp[s])),
                            sheet = "IS Provider",skip=13)
   
-  incompleteDTA <- read_excel(paste0(links.out.df$month[s],"-providers-incomplete.",
-                                     tools::file_ext(links.out.df$providers.link.incomp[s])),
+  incompleteDTA <- read_excel(paste0(links_out_df$month[s],"-providers-incomplete.",
+                                     tools::file_ext(links_out_df$providers.link.incomp[s])),
                               sheet = "IS Provider with DTA",skip=13)
   
-  new_provider <- read_excel(paste0(links.out.df$month[s],"-newproviders.",
-                                    tools::file_ext(links.out.df$providers.link.new[s])),
+  new_provider <- read_excel(paste0(links_out_df$month[s],"-newproviders.",
+                                    tools::file_ext(links_out_df$providers.link.new[s])),
                              sheet = "IS Provider",skip=13)
   
-  adm_provider <- read_excel(paste0(links.out.df$month[s],"-providers-admitted.",
-                                    tools::file_ext(links.out.df$providers.link.adm[s])),
+  adm_provider <- read_excel(paste0(links_out_df$month[s],"-providers-admitted.",
+                                    tools::file_ext(links_out_df$providers.link.adm[s])),
                              sheet = "IS Provider",skip=13)
   
-  nonadm_provider <- read_excel(paste0(links.out.df$month[s],"-providers-nonadmitted.",
-                                       tools::file_ext(links.out.df$providers.link.nonadm[s])),
+  nonadm_provider <- read_excel(paste0(links_out_df$month[s],"-providers-nonadmitted.",
+                                       tools::file_ext(links_out_df$providers.link.nonadm[s])),
                                 sheet = "IS Provider",skip=13)
   
   #IS providers for that month
@@ -180,7 +169,7 @@ for (s in 1:nrow(links.out.df)){
              incomplete$`Provider Name`,incompleteDTA$`Provider Name`)
   region <- c(new_provider$`Region Code`,adm_provider$`Region Code`,nonadm_provider$`Region Code`,
               incomplete$`Region Code`,incompleteDTA$`Region Code`)
-  summary_month <- data.frame(monthyr=rep(as.character(links.out.df$month[s]),length(codes)),codes,names,region)
+  summary_month <- data.frame(monthyr=rep(as.character(links_out_df$month[s]),length(codes)),codes,names,region)
   rm(incomplete,incompleteDTA,new_provider,adm_provider,nonadm_provider,codes,names,region)
   
   #Successively append files
@@ -202,27 +191,27 @@ fwrite(IS_providers_allmonths, file = paste0(R_workbench,"/RTT_temp_data/",
 rm(IS_providers_allmonths)
 
 #### Get all NHS provider locations / region
-for (s in 1:nrow(links.out.df)){
+for (s in 1:nrow(links_out_df)){
   
   #Open all provider files for one month and append
-  incomplete <- read_excel(paste0(links.out.df$month[s],"-providers-incomplete.",
-                                  tools::file_ext(links.out.df$providers.link.incomp[s])),
+  incomplete <- read_excel(paste0(links_out_df$month[s],"-providers-incomplete.",
+                                  tools::file_ext(links_out_df$providers.link.incomp[s])),
                            sheet = "Provider",skip=13)
   
-  incompleteDTA <- read_excel(paste0(links.out.df$month[s],"-providers-incomplete.",
-                                     tools::file_ext(links.out.df$providers.link.incomp[s])),
+  incompleteDTA <- read_excel(paste0(links_out_df$month[s],"-providers-incomplete.",
+                                     tools::file_ext(links_out_df$providers.link.incomp[s])),
                               sheet = "Provider with DTA",skip=13)
   
-  new_provider <- read_excel(paste0(links.out.df$month[s],"-newproviders.",
-                                    tools::file_ext(links.out.df$providers.link.new[s])),
+  new_provider <- read_excel(paste0(links_out_df$month[s],"-newproviders.",
+                                    tools::file_ext(links_out_df$providers.link.new[s])),
                              sheet = "Provider",skip=13)
   
-  adm_provider <- read_excel(paste0(links.out.df$month[s],"-providers-admitted.",
-                                    tools::file_ext(links.out.df$providers.link.adm[s])),
+  adm_provider <- read_excel(paste0(links_out_df$month[s],"-providers-admitted.",
+                                    tools::file_ext(links_out_df$providers.link.adm[s])),
                              sheet = "Provider",skip=13)
   
-  nonadm_provider <- read_excel(paste0(links.out.df$month[s],"-providers-nonadmitted.",
-                                       tools::file_ext(links.out.df$providers.link.nonadm[s])),
+  nonadm_provider <- read_excel(paste0(links_out_df$month[s],"-providers-nonadmitted.",
+                                       tools::file_ext(links_out_df$providers.link.nonadm[s])),
                                 sheet = "Provider",skip=13)
   
   #IS providers for that month
@@ -233,7 +222,7 @@ for (s in 1:nrow(links.out.df)){
              incomplete$`Provider Name`,incompleteDTA$`Provider Name`)
   region <- c(new_provider$`Region Code`,adm_provider$`Region Code`,nonadm_provider$`Region Code`,
               incomplete$`Region Code`,incompleteDTA$`Region Code`)
-  summary_month <- data.frame(monthyr=rep(as.character(links.out.df$month[s]),length(codes)),codes,names,region)
+  summary_month <- data.frame(monthyr=rep(as.character(links_out_df$month[s]),length(codes)),codes,names,region)
   rm(incomplete,incompleteDTA,new_provider,adm_provider,nonadm_provider,codes,names,region)
   
   #Successively append files
@@ -265,7 +254,7 @@ IS_providers_allmonths <- fread(paste0(R_workbench,"/",temp_folder,"/IS_provider
                                 header=TRUE, sep=",", check.names=T)
 
 #Append all files
-for (j in 1:nrow(links.out.df)){
+for (j in 1:nrow(links_out_df)){
 
   #Find name of large CSV
   file.name <- list.files()[str_detect(list.files(),"full-extract")][1] #To make sure there's only one file - is it the right one?
@@ -275,10 +264,10 @@ for (j in 1:nrow(links.out.df)){
   rm(file.name)
   
   #Add month-year indicator
-  RTT_month$monthyr <- as.character(links.out.df$month[j])
+  RTT_month$monthyr <- as.character(links_out_df$month[j])
   
   #New indicator variable to flag independent providers
-  RTT_month$IS_provider <- ifelse(RTT_month$Provider.Org.Code %in% filter(IS_providers_allmonths,monthyr==links.out.df$month[j])$codes,1,0)
+  RTT_month$IS_provider <- ifelse(RTT_month$Provider.Org.Code %in% filter(IS_providers_allmonths,monthyr==links_out_df$month[j])$codes,1,0)
   
   #Successively append files
   if (j==1) {

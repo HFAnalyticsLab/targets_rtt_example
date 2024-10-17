@@ -7,7 +7,7 @@ year_lkup <- function(y, l=12){
   year <- c(rep(y,9),rep(y+1,3))
   series <- rep(as.character(paste0(y, y+1)), 12)
   return(
-    cbind.data.frame(month=paste0(m,year),series=series) %>%
+    cbind.data.frame(month=paste0(m,year),series=series) |>
       head(l)
   )
   
@@ -15,13 +15,13 @@ year_lkup <- function(y, l=12){
 
 #All together
 
-inputs <- plyr::rbind.fill(year_lkup(24,5),
-                           year_lkup(23),
-                           year_lkup(22),
-                           year_lkup(21),
-                           year_lkup(20),
-                           year_lkup(19),
-                           year_lkup(18))
+inputs <- rbind(year_lkup(24,5),
+                year_lkup(23),
+                year_lkup(22),
+                year_lkup(21),
+                year_lkup(20),
+                year_lkup(19),
+                year_lkup(18))
 
 #Function that reports links to 3 files for each month
 

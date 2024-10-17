@@ -54,5 +54,9 @@ list(
     name = data,
     command = links_out_df(5) # months of current year with data
     # format = 'qs' # Efficient storage for general data objects.
+  ),
+  tar_target(
+    name = file,
+    command = dl_files(data)
   )
 )

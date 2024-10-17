@@ -5,23 +5,23 @@ append_IS <- function(data){
     
     #Open all provider files for one month and append
     incomplete <- read_excel(paste0(data$month[s],"-providers-incomplete.",
-                                    tools::file_ext(data$providers.link.incomp[s])),
+                                    file_ext(data$providers.link.incomp[s])),
                              sheet = "IS Provider",skip=13)
     
     incompleteDTA <- read_excel(paste0(data$month[s],"-providers-incomplete.",
-                                       tools::file_ext(data$providers.link.incomp[s])),
+                                       file_ext(data$providers.link.incomp[s])),
                                 sheet = "IS Provider with DTA",skip=13)
     
     new_provider <- read_excel(paste0(data$month[s],"-newproviders.",
-                                      tools::file_ext(data$providers.link.new[s])),
+                                      file_ext(data$providers.link.new[s])),
                                sheet = "IS Provider",skip=13)
     
     adm_provider <- read_excel(paste0(data$month[s],"-providers-admitted.",
-                                      tools::file_ext(data$providers.link.adm[s])),
+                                      file_ext(data$providers.link.adm[s])),
                                sheet = "IS Provider",skip=13)
     
     nonadm_provider <- read_excel(paste0(data$month[s],"-providers-nonadmitted.",
-                                         tools::file_ext(data$providers.link.nonadm[s])),
+                                         file_ext(data$providers.link.nonadm[s])),
                                   sheet = "IS Provider",skip=13)
     
     #IS providers for that month
@@ -60,23 +60,23 @@ append_geo <- function(data){
     
     #Open all provider files for one month and append
     incomplete <- read_excel(paste0(data$month[s],"-providers-incomplete.",
-                                    tools::file_ext(data$providers.link.incomp[s])),
+                                    file_ext(data$providers.link.incomp[s])),
                              sheet = "Provider",skip=13)
     
     incompleteDTA <- read_excel(paste0(data$month[s],"-providers-incomplete.",
-                                       tools::file_ext(data$providers.link.incomp[s])),
+                                       file_ext(data$providers.link.incomp[s])),
                                 sheet = "Provider with DTA",skip=13)
     
     new_provider <- read_excel(paste0(data$month[s],"-newproviders.",
-                                      tools::file_ext(data$providers.link.new[s])),
+                                      file_ext(data$providers.link.new[s])),
                                sheet = "Provider",skip=13)
     
     adm_provider <- read_excel(paste0(data$month[s],"-providers-admitted.",
-                                      tools::file_ext(data$providers.link.adm[s])),
+                                      file_ext(data$providers.link.adm[s])),
                                sheet = "Provider",skip=13)
     
     nonadm_provider <- read_excel(paste0(data$month[s],"-providers-nonadmitted.",
-                                         tools::file_ext(data$providers.link.nonadm[s])),
+                                         file_ext(data$providers.link.nonadm[s])),
                                   sheet = "Provider",skip=13)
     
     #IS providers for that month

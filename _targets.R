@@ -58,5 +58,13 @@ list(
   tar_target(
     name = file,
     command = dl_files(data)
+  ),
+  tar_target(
+    name = app_IS,
+    command = append_IS(data)
+  ),
+  tar_target(
+    name = app_geo,
+    command = append_geo(data)
   )
 )

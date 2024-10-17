@@ -1,57 +1,3 @@
-##########################################################
-################### DEVELOPMENT IDEAS ####################
-##########################################################
-
-#Delete temporary files along the way
-#Use s3sync() to sync into a bucket when ready
-#delete file 1a and file 2 from AWS branch
-
-##############################################
-################### SETUP ####################
-##############################################
-
-###### Libraries ######
-
-#Some of these might not be needed
-library(tidyverse)
-library(rvest)
-library(downloader)
-library(stringr)
-library(qdapRegex)
-library(tidyr)
-library(purrr)
-library(pbapply)
-library(data.table)
-library(readr)
-library(readxl)
-library(aws.s3)
-
-rm(list = ls()) #Clear the working environment
-source('setup.R') #get project locations in s3 and working directory
-
-# IHT_bucket: s3 project bucket
-# RTT_subfolder: folder to place data
-# R_workbench: R server working directory
-
-#Create folder in local workbench for temporary files
-
-setwd(R_workbench)
-temp_folder <- "RTT_temp_data"
-
-#Main folder
-if (file.exists(temp_folder)) {
-  cat("The folder already exists")
-} else {
-  dir.create(temp_folder)
-}
-
-#Folder for temp files
-if (file.exists(paste0(temp_folder,"/temp files"))) {
-  cat("The folder already exists")
-} else {
-  dir.create(paste0(temp_folder,"/temp files"))
-}
-
 #####################################################
 ################### Web-scraping ####################
 #####################################################
@@ -150,33 +96,11 @@ links.out.df <- as.data.frame(t(links.out)) %>%
 sum(is.na(links.out.df)) == 0
 nrow(links.out.df) == nrow(inputs)
 
-rm(inputs,links.out) 
-#links.out.df <- head(links.out.df,n=3) #For now, check that it works for the first 3 months
-
-## this bit not true now as NHS must have fixed the link
-# April 2022 does not follow the same pattern for links so add manually
-# missing <- 'https://www.england.nhs.uk/statistics/wp-content/uploads/sites/2/2022/06/NonAdmitted-Provider-Apr-22-XLS-8573K-57873.xls'
-# links.out.df$providers.link.nonadm$Apr22 <- missing
 ###########################################################
 ################### Download all files ####################
 ###########################################################
-
-#Which months have we already downloaded locally?
-
-already_there <- list.dirs(path = paste0(temp_folder,"/temp files"), full.names = TRUE, recursive = TRUE) %>%
-  str_replace_all(.,paste0(temp_folder,"/temp files/"),"")
-
-#Download a set of files for each month (unless already there locally)
-## now xlsx files turning up in more recent data as well as xls previously
-## use tools::file_ext() to extract and assign correctly
 for (k in 1:nrow(links.out.df)){
   
-  if (links.out.df$month[k] %in% already_there){
-    cat("The files are already there")
-  }
-  else{
-    cat("Downloading new files")
-    
     #Download Full CSV in workbench
     download(as.character(links.out.df$full.csv.link[k]),
              dest=paste0("RTT_temp_data/temp files/",links.out.df$month[k],".zip"), mode="wb")
@@ -219,11 +143,7 @@ for (k in 1:nrow(links.out.df)){
                          links.out.df$month[k],"-providers-incomplete.",
                          tools::file_ext(links.out.df$providers.link.incomp[k])),
              mode="wb") 
-  }
 }
-
-#Clean up files
-rm(already_there)
 
 ###########################################################################
 ################### Append all IS provider files into one #################
@@ -232,10 +152,6 @@ rm(already_there)
 for (s in 1:nrow(links.out.df)){
   
   #Open all provider files for one month and append
-  
-  setwd(paste0(R_workbench,"/",temp_folder,"/temp files/"))
-  setwd(as.character(links.out.df$month[s]))
-  
   incomplete <- read_excel(paste0(links.out.df$month[s],"-providers-incomplete.",
                                   tools::file_ext(links.out.df$providers.link.incomp[s])),
                            sheet = "IS Provider",skip=13)
@@ -281,7 +197,6 @@ IS_providers_allmonths <- storage[!duplicated(storage), ]
 rm(storage,summary_month)
 
 #Save
-setwd(paste0(R_workbench,"/",temp_folder,"/"))
 fwrite(IS_providers_allmonths, file = paste0(R_workbench,"/RTT_temp_data/",
                                              "/IS_providers_allmonths.csv"), sep = ",")
 rm(IS_providers_allmonths)
@@ -290,10 +205,6 @@ rm(IS_providers_allmonths)
 for (s in 1:nrow(links.out.df)){
   
   #Open all provider files for one month and append
-  
-  setwd(paste0(R_workbench,"/",temp_folder,"/temp files/"))
-  setwd(as.character(links.out.df$month[s]))
-  
   incomplete <- read_excel(paste0(links.out.df$month[s],"-providers-incomplete.",
                                   tools::file_ext(links.out.df$providers.link.incomp[s])),
                            sheet = "Provider",skip=13)
@@ -339,7 +250,6 @@ providers_allmonths <- storage[!duplicated(storage), ]
 rm(storage,summary_month)
 
 #Save
-setwd(paste0(R_workbench,"/",temp_folder,"/"))
 fwrite(providers_allmonths, file = paste0(R_workbench,"/RTT_temp_data/",
                                           "/providers_allmonths.csv"), sep = ",")
 rm(IS_providers_allmonths)
@@ -356,13 +266,7 @@ IS_providers_allmonths <- fread(paste0(R_workbench,"/",temp_folder,"/IS_provider
 
 #Append all files
 for (j in 1:nrow(links.out.df)){
-  
-  setwd(paste0(R_workbench,"/",temp_folder,"/temp files/"))
-  setwd(as.character(links.out.df$month[j]))
-  
-  #Display progress
-  #cat(links.out.df$month[j]))
-  
+
   #Find name of large CSV
   file.name <- list.files()[str_detect(list.files(),"full-extract")][1] #To make sure there's only one file - is it the right one?
   
@@ -385,24 +289,8 @@ for (j in 1:nrow(links.out.df)){
 }
 
 #Save
-setwd(paste0(R_workbench,"/",temp_folder,"/"))
 fwrite(storage.rtt, file = "RTT_allmonths_new.csv", sep = ",")
 
-#Clean up files
-rm(links.out.df,IS_providers_allmonths,RTT_month,storage.rtt)
-
-#################################################################
-################### Delete temporary folders ####################
-#################################################################
-
-setwd(paste0(R_workbench,"/",temp_folder,"/"))
-unlink("temp files",recursive=TRUE)
-
-#######################################################################
-################### Sync local folder to S3 bucket ####################
-#######################################################################
-
-setwd(paste0(R_workbench,"/",temp_folder,"/"))
 
 put_object(file = 'RTT_allmonths_new.csv',
            object = paste0(RTT_subfolder,"/","RTT_allmonths_new.csv"),

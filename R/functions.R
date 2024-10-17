@@ -1,6 +1,6 @@
-#####################################################
-################### Web-scraping ####################
-#####################################################
+### Functions (JH 2024)
+
+## builder to get links setup for dl
 year_lkup <- function(y, l=12){
   
   m <- c("Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar")
@@ -13,19 +13,18 @@ year_lkup <- function(y, l=12){
   
 }
 
-#All together
+## Combine together for all files/dates to dl
 file_dates_df <- function(m, y = 24, yb = 6){
   
-  a <- lapply(FUN = year_lkup, c((y-1):(y-yb))) |>
+  a <- lapply(FUN = year_lkup, c((y - 1):(y - yb))) |>
         rbindlist()
   
   return(rbind(year_lkup(y, m), a))
   
 }
 
-#Function that reports links to 3 files for each month
-
-return_links_rtt <- function(month,series){
+#Function that reports links to 5 files for each month
+return_links_rtt <- function(month, series){
   
   read.first.page <- read_html(
                      paste0('https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/rtt-data-20',
@@ -70,24 +69,20 @@ return_links_rtt <- function(month,series){
   
 }
 
-#Example
-#return_links_rtt("Jul","2122")
+## create df of all links
+links_out_df <- function(m){
+  
+  mapply(return_links_rtt,
+         month = file_dates_df(m)$month,
+         series = file_dates_df(m)$series) |>
+  t() |>              
+  as.data.frame() |>
+  unnest(cols = c(month, series, full.csv.link, providers.link.incomp, providers.link.new,
+                  providers.link.adm, providers.link.nonadm)) |>
+  filter(!is.na(full.csv.link)) #Filter out months that haven't been uploaded yet or don't exist
+}
 
-#Apply for all months to get all links, and store there is 'links_out_df'
-
-links_out_df <- mapply(return_links_rtt,
-                       month = file_dates_df(m=5)$month,
-                       series = file_dates_df(m=5)$series) |>
-                t() |>              
-                as.data.frame() |>
-                unnest(cols = c(month, series, full.csv.link, providers.link.incomp, providers.link.new,
-                                providers.link.adm, providers.link.nonadm)) |>
-                filter(!is.na(full.csv.link)) #Filter out months that haven't been uploaded yet or don't exist
-
-
-###########################################################
-################### Download all files ####################
-###########################################################
+## Download all files in links_out_df
 for (k in 1:nrow(links_out_df)){
   
     #Download Full CSV in workbench

@@ -11,7 +11,7 @@ library(targets)
 tar_option_set(
   packages = c('tibble', 'rvest', 'stringr', 'tidyr',
                'dplyr', 'downloader', 'data.table', 'readxl',
-               'tools') # Packages that your targets need for their tasks.
+               'tools', 'aws.s3') # Packages that your targets need for their tasks.
   
   # format = 'qs', # Optionally set the default storage format. qs is fast.
   #

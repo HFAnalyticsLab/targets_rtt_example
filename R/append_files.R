@@ -55,12 +55,11 @@ append_IS <- function(data){
     }
   }
 
-  #Remove duplicates
-  IS_providers_allmonths <- storage[!duplicated(storage), ]
+  #Remove duplicates and save
+  return(
+    storage[!duplicated(storage), ]
+  )
   
-  #Save
-  fwrite(IS_providers_allmonths, file = 'RTT_temp_data/IS_providers_allmonths.csv')
-
 }
 
 #### Get all NHS provider locations / region

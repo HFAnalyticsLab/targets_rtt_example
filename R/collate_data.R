@@ -10,7 +10,8 @@ file.name <- list.files('RTT_temp_data', recursive = TRUE)[
 for (j in 1:nrow(data)){
   
   #Read in
-  RTT_month <- fread(file.name[j], header = TRUE, sep = ',', check.names = T)
+  RTT_month <- fread(file = paste0('RTT_temp_data/', file.name[j]),
+                     header = TRUE, sep = ',', check.names = T)
 
   #Add month-year indicator
   RTT_month$monthyr <- as.character(data$month[j])
@@ -32,16 +33,16 @@ fwrite(storage.rtt, file = "RTT_allmonths_new.csv", sep = ",")
 
 
 put_object(file = 'RTT_allmonths_new.csv',
-           object = paste0(RTT_subfolder,"/","RTT_allmonths_new.csv"),
-           bucket = IHT_bucket, show_progress = TRUE,
+           object = 'RTT_waiting_times_data_t/RTT_allmonths_new.csv',
+           bucket = 'thf-dap-tier0-projects-iht-067208b7-projectbucket-1mrmynh0q7ljp', show_progress = TRUE,
            multipart=TRUE)
 
 put_object(file = 'IS_providers_allmonths.csv',
-           object = paste0(RTT_subfolder,"/","IS_providers_allmonths.csv"),
-           bucket = IHT_bucket, show_progress = TRUE,
+           object = 'RTT_waiting_times_data_t/IS_providers_allmonths.csv',
+           bucket = 'thf-dap-tier0-projects-iht-067208b7-projectbucket-1mrmynh0q7ljp', show_progress = TRUE,
            multipart=TRUE)
 
 put_object(file = 'providers_allmonths.csv',
-           object = paste0(RTT_subfolder,"/","providers_allmonths.csv"),
-           bucket = IHT_bucket, show_progress = TRUE,
+           object = 'RTT_waiting_times_data_t/providers_allmonths.csv',
+           bucket = 'thf-dap-tier0-projects-iht-067208b7-projectbucket-1mrmynh0q7ljp', show_progress = TRUE,
            multipart=TRUE)

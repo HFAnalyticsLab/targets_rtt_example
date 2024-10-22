@@ -31,7 +31,7 @@ collate_data <- function(data){
   }
 
   #Save
-  fwrite(storage.rtt, file = "RTT_allmonths_new.csv", sep = ",")
+  return(storage.rtt)
   
 }
 

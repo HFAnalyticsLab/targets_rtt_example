@@ -69,5 +69,9 @@ list(
   tar_target(
     name = app_geo,
     command = append_geo(data)
+  ),
+  tar_target(
+    name = collect_data,
+    command = collate_data(data)
   )
 )

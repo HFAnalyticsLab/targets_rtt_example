@@ -72,6 +72,6 @@ list(
   ),
   tar_target(
     name = collect_data,
-    command = collate_data(data)
+    command = collate_data(app_IS, data)
   )
 )

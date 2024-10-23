@@ -1,9 +1,10 @@
 
-collate_data <- function(data){
+collate_data <- function(app_IS, data){
   
-  IS_providers_allmonths <- fread('RTT_temp_data/IS_providers_allmonths.csv',
-                                  header=TRUE, sep=",", check.names=T)
+  #IS_providers_allmonths <- fread('RTT_temp_data/IS_providers_allmonths.csv',
+  #                                header=TRUE, sep=",", check.names=T)
   
+  is_prov <- fread(app_IS)
   #Find name of large csvs
   file.name <- list.files('RTT_temp_data', recursive = TRUE)[
     str_detect(list.files('RTT_temp_data', recursive = TRUE), 'full-extract')]
@@ -20,7 +21,7 @@ collate_data <- function(data){
     
     #New indicator variable to flag independent providers
     RTT_month$IS_provider <- ifelse(
-      RTT_month$Provider.Org.Code %in% filter(IS_providers_allmonths, monthyr == data$month[j])$codes, 1, 0)
+      RTT_month$Provider.Org.Code %in% filter(is_prov, monthyr == data$month[j])$codes, 1, 0)
     
     #Successively append files
     if (j==1) {

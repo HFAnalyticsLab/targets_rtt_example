@@ -55,11 +55,13 @@ append_IS <- function(data){
     }
   }
 
-  #Remove duplicates and save
-  return(
-    storage[!duplicated(storage), ]
-  )
+  #Remove duplicates
+  is_prov <- storage[!duplicated(storage), ]
   
+  #Save
+  fwrite(is_prov, file = 'RTT_temp_data/IS_prov.csv')
+  return('RTT_temp_data/IS_prov.csv') ## target name:app_IS
+                                      ## is location of is_prov file
 }
 
 #### Get all NHS provider locations / region

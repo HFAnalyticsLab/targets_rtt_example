@@ -66,11 +66,11 @@ list(
   ),
   tar_target(
     name = app_IS,
-    command = append_IS(file_locs)
+    command = append_providers(file_locs, prov = 'IS Provider')
   ),
   tar_target(
     name = app_geo,
-    command = append_geo(file_locs)
+    command = append_providers(file_locs, prov = 'Provider')
   ),
   tar_target(
     name = collect_data,

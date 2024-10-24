@@ -11,7 +11,9 @@ library(targets)
 tar_option_set(
   packages = c('tibble', 'rvest', 'stringr', 'tidyr',
                'dplyr', 'downloader', 'data.table', 'readxl',
-               'tools', 'aws.s3') # Packages that your targets need for their tasks.
+               'tools', 'aws.s3'), # Packages that your targets need for their tasks
+  
+  error = 'null' # produce a result even if the target errors
   
   # format = 'qs', # Optionally set the default storage format. qs is fast.
   #
@@ -54,24 +56,24 @@ tar_source()
 # Replace the target list below with your own:
 list(
   tar_target(
-    name = data,
+    name = web_data,
     command = links_out_df(12) # months of current year with data
     # format = 'qs' # Efficient storage for general data objects.
   ),
   tar_target(
-    name = file,
-    command = dl_files(data)
+    name = file_locs,
+    command = dl_files(web_data)
   ),
   tar_target(
     name = app_IS,
-    command = append_IS(data)
+    command = append_IS(file_locs)
   ),
   tar_target(
     name = app_geo,
-    command = append_geo(data)
+    command = append_geo(file_locs)
   ),
   tar_target(
     name = collect_data,
-    command = collate_data(app_IS, data)
+    command = collate_data(app_IS, file_locs)
   )
 )

@@ -73,7 +73,7 @@ list(
     command = append_providers(file_locs, prov = 'Provider')
   ),
   tar_target(
-    name = collect_data,
+    name = combined_dataset,
     command = collate_data(app_IS, file_locs)
   )
 )

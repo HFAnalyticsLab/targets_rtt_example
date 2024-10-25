@@ -11,4 +11,4 @@ tar_make()  # run the pipeline (reproducible new external R process which then r
             # and runs the correct targets in the correct order)
 ```
 
-Note: you will need to create a script R/s3_locations.R which sets the target bucket name called IHT_bucket
+Note: you will need to create a script `R/s3_locations.R` which sets the target bucket name called IHT_bucket

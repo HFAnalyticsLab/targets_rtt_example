@@ -60,6 +60,6 @@ collate_data <- function(app_IS, file_locs){
                 paste0('s3://', IHT_bucket, '/arrow_rtt'),
                 partitioning = 'monthyr')
   
-  return(TRUE) # if written correctly
+  return(paste0('s3://', IHT_bucket, '/arrow_rtt')) # if written correctly
   
 }

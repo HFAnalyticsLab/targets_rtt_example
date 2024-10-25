@@ -11,7 +11,7 @@ library(targets)
 tar_option_set(
   packages = c('tibble', 'rvest', 'stringr', 'tidyr',
                'dplyr', 'downloader', 'data.table', 'readxl',
-               'tools', 'aws.s3'), # Packages that your targets need for their tasks
+               'tools', 'aws.s3', 'arrow'), # Packages that your targets need for their tasks
   
   error = 'null' # produce a result even if the target errors
   

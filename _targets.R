@@ -75,5 +75,9 @@ list(
   tar_target(
     name = combined_dataset,
     command = collate_data(app_IS, file_locs)
+  ),
+  tar_target(
+    name = process_adm,
+    command = process_rtt(combined_dataset, type = 'completeadmitted', specialty = 'Total')
   )
 )

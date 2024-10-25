@@ -28,23 +28,38 @@ collate_data <- function(app_IS, file_locs){
     }
   }
 
-  #Save
-  return(storage.rtt)
+  ## first cleaning steps (usually performed in "2. Produce descriptive statistics" but should be done before writing data)
+  #### Create pathways variable
+  
+  storage.rtt <- storage.rtt |>
+    mutate(pathways = case_when(
+      RTT.Part.Description == 'Incomplete Pathways' ~ 'incomplete',
+      RTT.Part.Description == 'Completed Pathways For Admitted Patients' ~ 'completeadmitted',
+      RTT.Part.Description == 'Completed Pathways For Non-Admitted Patients' ~ 'completenonadmitted',
+      RTT.Part.Description == 'Incomplete Pathways with DTA' ~ 'incompleteDTA',
+      RTT.Part.Description == 'New RTT Periods - All Patients' ~ 'newRTT',
+      TRUE ~ 'NA'
+    ))
+  
+  #### Clean up specialty names (monitor for new ones)
+  
+  storage.rtt <- storage.rtt |>
+    mutate(Treatment.Function.Name = str_replace_all(Treatment.Function.Name,' Service','')) |>
+    mutate(Treatment.Function.Name = ifelse(Treatment.Function.Name == 'Ear, Nose & Throat (ENT)','Ear Nose and Throat',Treatment.Function.Name)) |>
+    mutate(Treatment.Function.Name = ifelse(Treatment.Function.Name == 'Geriatric Medicine','Elderly Medicine',Treatment.Function.Name)) |> 
+    mutate(Treatment.Function.Name = ifelse(Treatment.Function.Name == 'Neurosurgical','Neurosurgery',Treatment.Function.Name)) |> 
+    mutate(Treatment.Function.Name = ifelse(Treatment.Function.Name == 'Trauma & Orthopaedics','Trauma and Orthopaedic',Treatment.Function.Name)) |> 
+    mutate(Treatment.Function.Name = ifelse(Treatment.Function.Name == 'Other - Medicals','Other',Treatment.Function.Name)) |> 
+    mutate(Treatment.Function.Name = ifelse(Treatment.Function.Name == 'Other - Mental Healths','Other',Treatment.Function.Name)) |> 
+    mutate(Treatment.Function.Name = ifelse(Treatment.Function.Name == 'Other - Others','Other',Treatment.Function.Name)) |> 
+    mutate(Treatment.Function.Name = ifelse(Treatment.Function.Name == 'Other - Paediatrics','Other',Treatment.Function.Name)) |> 
+    mutate(Treatment.Function.Name = ifelse(Treatment.Function.Name == 'Other - Surgicals','Other',Treatment.Function.Name))
+
+    #Save
+  write_dataset(storage.rtt,
+                paste0('s3://', IHT_bucket, '/arrow_rtt'),
+                partitioning = 'monthyr')
+  
+  return(TRUE) # if written correctly
   
 }
-
-
-#put_object(file = 'RTT_allmonths_new.csv',
-#           object = 'RTT_waiting_times_data_t/RTT_allmonths_new.csv',
-#           bucket = 'thf-dap-tier0-projects-iht-067208b7-projectbucket-1mrmynh0q7ljp', show_progress = TRUE,
-#           multipart=TRUE)
-
-#put_object(file = 'IS_providers_allmonths.csv',
-#           object = 'RTT_waiting_times_data_t/IS_providers_allmonths.csv',
-#           bucket = 'thf-dap-tier0-projects-iht-067208b7-projectbucket-1mrmynh0q7ljp', show_progress = TRUE,
-#           multipart=TRUE)
-
-#put_object(file = 'providers_allmonths.csv',
-#           object = 'RTT_waiting_times_data_t/providers_allmonths.csv',
-#           bucket = 'thf-dap-tier0-projects-iht-067208b7-projectbucket-1mrmynh0q7ljp', show_progress = TRUE,
-#           multipart=TRUE)

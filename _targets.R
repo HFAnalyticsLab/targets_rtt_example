@@ -79,5 +79,9 @@ list(
   tar_target(
     name = process_adm,
     command = process_rtt(combined_dataset, type = 'completeadmitted', specialty = 'Total')
+  ),
+  tar_target(
+    name = process_nonadm,
+    command = process_rtt(combined_dataset, type = 'completenonadmitted', specialty = 'Total')
   )
 )

@@ -66,7 +66,7 @@ list(
   ),
   tar_target(
     name = app_IS,
-    command = append_providers(file_locs, prov = 'IS Provider')
+    command = append_providers(file_locs, prov = 'IS Provider') # prov is associated with the excel sheet names
   ),
   tar_target(
     name = app_geo,

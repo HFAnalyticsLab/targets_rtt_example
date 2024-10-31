@@ -87,5 +87,9 @@ list(
   tar_target(
     name = process_new,
     command = process_rtt(combined_dataset, type = 'newRTT', specialty = 'Total')
+  ),
+  tar_target(
+    name = process_spec,
+    command = process_specialties(combined_dataset)
   )
 )

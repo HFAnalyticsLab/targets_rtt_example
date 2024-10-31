@@ -10,16 +10,16 @@ process_rtt <- function(combined_dataset,
   
   for (i in all_months){
     
-    res[[j]] <- dashboard_stats_ccg(combined_dataset,
-                                    monthyear = i,
-                                    specialty = specialty,
-                                    type = type,
-                                    independent = 0)
-    res[[j+1]] <- dashboard_stats_ccg(combined_dataset,
-                                    monthyear = i,
-                                    specialty = specialty,
-                                    type = type,
-                                    independent = 1)
+    res[[j]] <- dashboard_stats(combined_dataset,
+                                monthyear = i,
+                                specialty = specialty,
+                                type = type,
+                                independent = 0)
+    res[[j+1]] <- dashboard_stats(combined_dataset,
+                                  monthyear = i,
+                                  specialty = specialty,
+                                  type = type,
+                                  independent = 1)
     j <- j + 2
   }
  

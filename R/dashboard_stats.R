@@ -86,7 +86,6 @@ dashboard_stats <- function(combined_dataset,
     
     #Only compute quantiles if there are more than 20 patients
     #Compute them in 3 different ways: Total, IS and non-IS
-    
     if (total.nonmiss >= 20 & type != 'newRTT'){
       #Return weeks (for a given quantile)
       
@@ -103,7 +102,7 @@ dashboard_stats <- function(combined_dataset,
                  difference = (cumsum - target))
         
         weeks[j] <- (filter(auxmat, above == 1) |>
-                       select(., weeks) |> min()) - 1
+                       select(weeks) |> min()) - 1
       }
       
       weeks <- as.data.frame(weeks) |> t()
@@ -111,7 +110,7 @@ dashboard_stats <- function(combined_dataset,
       
       #Return % of patients waiting 18 weeks or less
       
-      number_52_or_less <- datasubset_sum[1:52, ] |> sum(., na.rm = TRUE) |> unlist()
+      number_52_or_less <- datasubset_sum[1:52, ] |> sum(na.rm = TRUE) |> unlist()
       number_52_or_more <- total.nonmiss - number_52_or_less
       rate_52_or_more <- round(number_52_or_more / total.nonmiss * 100, 1) |> unlist()
       
@@ -129,6 +128,7 @@ dashboard_stats <- function(combined_dataset,
                            number.52.or.more = number_52_or_more,
                            rate.52wks.or.more = rate_52_or_more,
                            weeks)
+      
     } else if (total.nonmiss < 20 | type == 'newRTT') {
       weeks <- rep(NA, length(quantiles))
       

@@ -18,7 +18,7 @@ collate_data <- function(app_IS, file_locs){
     
     #New indicator variable to flag independent providers
     RTT_month$IS_provider <- ifelse(
-      RTT_month$Provider.Org.Code %in% filter(is_prov, monthyr == substr(file.name[j], 1, 5)), 1, 0)
+      RTT_month$Provider.Org.Code %in% filter(is_prov, monthyr == substr(file.name[j], 1, 5))$codes, 1, 0)
     
     #Successively append files
     if (j==1) {

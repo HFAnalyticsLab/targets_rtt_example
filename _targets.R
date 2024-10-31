@@ -68,10 +68,10 @@ list(
     name = app_IS,
     command = append_providers(file_locs, prov = 'IS Provider') # prov is associated with the excel sheet names
   ),
-  tar_target(
-    name = app_geo,
-    command = append_providers(file_locs, prov = 'Provider')
-  ),
+#  tar_target(
+#    name = app_geo,
+#    command = append_providers(file_locs, prov = 'Provider')
+#  ),
   tar_target(
     name = combined_dataset,
     command = collate_data(app_IS, file_locs)
@@ -83,5 +83,9 @@ list(
   tar_target(
     name = process_nonadm,
     command = process_rtt(combined_dataset, type = 'completenonadmitted', specialty = 'Total')
+  ),
+  tar_target(
+    name = process_new,
+    command = process_rtt(combined_dataset, type = 'newRTT', specialty = 'Total')
   )
 )
